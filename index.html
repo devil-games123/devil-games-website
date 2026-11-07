@@ -62,7 +62,7 @@ footer{text-align:center;color:var(--muted);font-size:.85rem;margin-top:30px}
     <p class="sub">Psychological horror and interactive fiction you can <b>play right in your browser</b>. Just click and step inside.</p>
     <a class="cta" href="https://devil-games123.itch.io/" target="_blank" rel="noopener">Play now on itch.io ▸</a>
     <div class="stats">
-      <div class="stat"><strong id="count">9</strong><small>horror games</small></div>
+      <div class="stat"><strong id="count">10</strong><small>horror games</small></div>
       <div class="stat"><strong>7</strong><small>endings in “What if?”</small></div>
     </div>
   </section>
@@ -88,7 +88,7 @@ footer{text-align:center;color:var(--muted);font-size:.85rem;margin-top:30px}
 <script>
 (function(){
   var PROFILE = "https://devil-games123.itch.io/";
-  var CACHE_KEY = "dg_games_v2";          // bumped: clears old cached lists
+  var CACHE_KEY = "dg_games_v3";          // bumped: clears old cached lists
   var EXTRA_FILE = "./games.json";        // optional manual list (see notes)
   var grid = document.getElementById("games");
   var countEl = document.getElementById("count");
@@ -96,6 +96,7 @@ footer{text-align:center;color:var(--muted);font-size:.85rem;margin-top:30px}
   // Built-in fallback list. Also supplies nicer descriptions/badges.
   var KNOWN = [
     {url:"https://devil-games123.itch.io/what-if", title:"What if?", desc:"A found-footage horror game of brutal choices. 30 rounds, 7 endings… and every decision has a price.", badge:"Interactive Fiction · Play in browser"},
+    {url:"https://devil-games123.itch.io/vid-0417mp4", title:"VID_0417.mp4", desc:"A found-footage horror game. Press play and see what was buried.", badge:"Found footage · Play in browser"},
     {url:"https://devil-games123.itch.io/the-fourth-knock", title:"The Fourth Knock", desc:"Every person hears three knocks in a lifetime. No one talks about the fourth.", badge:"Horror story"},
     {url:"https://devil-games123.itch.io/line-9", title:"Line 9: The Emergency Line", desc:"A psychological text-based horror game where one emergency call connects you to a trapped woman.", badge:"Interactive Fiction · Play in browser"},
     {url:"https://devil-games123.itch.io/devil-games-os", title:"Devil Games OS", desc:"Explore a haunted operating system. Trust nothing. Especially ORACLE.", badge:"Simulation"},
@@ -215,6 +216,7 @@ footer{text-align:center;color:var(--muted);font-size:.85rem;margin-top:30px}
 
   // Optional manual list: games.json next to this page.
   function loadExtra(){
+    return Promise.resolve([]); // games.json no longer used: everything lives in KNOWN
     return fetchText(EXTRA_FILE + "?_=" + Date.now(), 5000).then(function(txt){
       var arr = JSON.parse(txt);
       if (!Array.isArray(arr)) return [];
