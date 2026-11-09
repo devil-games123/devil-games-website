@@ -2,7 +2,6 @@
 <html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
-<link rel="icon" type="image/svg+xml" href="./fal.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Devil Games — Horror games you play in your browser</title>
 <meta name="description" content="Psychological horror and interactive fiction by Devil_Games123. Play instantly in your browser on itch.io.">
@@ -11,9 +10,12 @@
   color-scheme:dark;
   --bg:#07070a; --surface:#12121a; --border:#2a1519; --text:#ece8e8; --muted:#9a9098;
   --red:#d11a2a; --red2:#ff3b4a;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 }
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.6;overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.6;overflow-x:hidden;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+img,a{-webkit-user-drag:none}
 body::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 0%,rgba(209,26,42,.25),transparent 60%),radial-gradient(ellipse at 50% 100%,rgba(209,26,42,.12),transparent 55%);z-index:0}
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:3;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px);opacity:.5}
 main{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:0 20px 60px}
@@ -52,6 +54,7 @@ footer{text-align:center;color:var(--muted);font-size:.85rem;margin-top:30px}
 @keyframes blink{0%,92%,100%{opacity:1}94%{opacity:.2}96%{opacity:1}98%{opacity:.4}}
 @keyframes glitch{0%,90%,100%{clip-path:inset(0 0 100% 0)}91%{clip-path:inset(10% 0 60% 0)}93%{clip-path:inset(55% 0 15% 0)}95%{clip-path:inset(30% 0 40% 0)}97%{clip-path:inset(0 0 100% 0)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+@media print{body{display:none}}
 </style>
 </head>
 <body>
@@ -87,15 +90,11 @@ footer{text-align:center;color:var(--muted);font-size:.85rem;margin-top:30px}
 
 <script>
 (function(){
-  var PROFILE = "https://devil-games123.itch.io/";
-  var CACHE_KEY = "dg_games_v3";          // bumped: clears old cached lists
-  var EXTRA_FILE = "./games.json";        // optional manual list (see notes)
   var grid = document.getElementById("games");
   var countEl = document.getElementById("count");
 
-  // Built-in fallback list. Also supplies nicer descriptions/badges.
-  var KNOWN = [
-    {url:"https://devil-games123.itch.io/what-if", title:"What if?", desc:"A found-footage horror game of brutal choices. 30 rounds, 7 endings… and every decision has a price.", badge:"Interactive Fiction · Play in browser"},
+  var GAMES = [
+    {url:"https://devil-games123.itch.io/what-if", title:"What if?", desc:"A found-footage horror game of brutal choices. 30 rounds, 7 endings… and every decision has a price.", badge:"Interactive Fiction · Play in browser", featured:true},
     {url:"https://devil-games123.itch.io/vid-0417mp4", title:"VID_0417.mp4", desc:"A found-footage horror game. Press play and see what was buried.", badge:"Found footage · Play in browser"},
     {url:"https://devil-games123.itch.io/the-fourth-knock", title:"The Fourth Knock", desc:"Every person hears three knocks in a lifetime. No one talks about the fourth.", badge:"Horror story"},
     {url:"https://devil-games123.itch.io/line-9", title:"Line 9: The Emergency Line", desc:"A psychological text-based horror game where one emergency call connects you to a trapped woman.", badge:"Interactive Fiction · Play in browser"},
@@ -106,151 +105,29 @@ footer{text-align:center;color:var(--muted);font-size:.85rem;margin-top:30px}
     {url:"https://devil-games123.itch.io/denial-second-test", title:"Denial: Second Test", desc:"Psychological stability test number two. It only gets worse.", badge:"DENIAL series · 2"},
     {url:"https://devil-games123.itch.io/denial-third-test", title:"Denial: Third Test", desc:"The last psychological test.", badge:"DENIAL series · 3"}
   ];
-  var KNOWN_MAP = {};
-  KNOWN.forEach(function(g){ KNOWN_MAP[norm(g.url)] = g; });
 
-  function norm(u){ return String(u).replace(/[#?].*$/,"").replace(/\/+$/,"").toLowerCase(); }
-  function isFeatured(g){ return /\/what-if$/.test(norm(g.url)); }
+  GAMES.forEach(function(g){
+    var a = document.createElement("a");
+    a.className = "card" + (g.featured ? " featured" : "");
+    a.href = g.url; a.target = "_blank"; a.rel = "noopener";
+    var h = document.createElement("h3"); h.textContent = g.title; a.appendChild(h);
+    var p = document.createElement("p"); p.textContent = g.desc; a.appendChild(p);
+    var b = document.createElement("span"); b.className = "badge"; b.textContent = g.badge; a.appendChild(b);
+    grid.appendChild(a);
+  });
+  countEl.textContent = GAMES.length;
 
-  function render(list){
-    grid.replaceChildren();
-    list.forEach(function(g){
-      var a = document.createElement("a");
-      a.className = "card" + (isFeatured(g) ? " featured" : "");
-      a.href = g.url; a.target = "_blank"; a.rel = "noopener";
-      var h = document.createElement("h3"); h.textContent = g.title;
-      a.appendChild(h);
-      if (g.desc){ var p = document.createElement("p"); p.textContent = g.desc; a.appendChild(p); }
-      var b = document.createElement("span"); b.className = "badge"; b.textContent = g.badge || "Game";
-      a.appendChild(b);
-      grid.appendChild(a);
-    });
-    countEl.textContent = list.length;
-  }
-
-  function sortFeaturedFirst(list){
-    return list.slice().sort(function(a,b){ return (isFeatured(b)?1:0) - (isFeatured(a)?1:0); });
-  }
-
-  // Merge lists by URL; earlier lists win, later lists only add missing games.
-  function merge(){
-    var seen = {}, out = [];
-    Array.prototype.slice.call(arguments).forEach(function(list){
-      (list || []).forEach(function(g){
-        if (!g || !g.url) return;
-        var k = norm(g.url);
-        if (seen[k]) return;
-        seen[k] = 1;
-        out.push(g);
-      });
-    });
-    return out;
-  }
-
-  function titleFromUrl(u){
-    var slug = norm(u).split("/").pop() || "Game";
-    return slug.replace(/[-_]+/g," ").replace(/\b\w/g,function(c){ return c.toUpperCase(); });
-  }
-
-  // Parse the itch.io profile page HTML into a list of games.
-  function parse(html){
-    var doc = new DOMParser().parseFromString(html, "text/html");
-    var cells = doc.querySelectorAll(".game_cell");
-    var seen = {}, out = [];
-    cells.forEach(function(c){
-      var a = c.querySelector("a.title, .game_title a, a.game_link");
-      if (!a) return;
-      var url;
-      try { url = new URL(a.getAttribute("href"), PROFILE); } catch(e){ return; }
-      if (url.hostname !== "devil-games123.itch.io") return;
-      var key = norm(url.href);
-      if (seen[key] || key === norm(PROFILE)) return;
-      seen[key] = 1;
-      var known = KNOWN_MAP[key] || {};
-      var descEl = c.querySelector(".game_text");
-      var genreEl = c.querySelector(".game_genre");
-      var title = (a.textContent || "").trim();
-      if (!title) return;
-      out.push({
-        url: url.href,
-        title: title,
-        desc: known.desc || (descEl ? descEl.textContent.trim() : ""),
-        badge: known.badge || (genreEl ? genreEl.textContent.trim() : "Game")
-      });
-    });
-    return out;
-  }
-
-  // Several free CORS proxies, all tried IN PARALLEL: first good answer wins.
-  var PROXIES = [
-    function(u){ return "https://api.allorigins.win/raw?url=" + encodeURIComponent(u); },
-    function(u){ return "https://corsproxy.io/?url=" + encodeURIComponent(u); },
-    function(u){ return "https://api.codetabs.com/v1/proxy/?quest=" + encodeURIComponent(u); },
-    function(u){ return "https://thingproxy.freeboard.io/fetch/" + u; },
-    function(u){ return "https://cors-anywhere.herokuapp.com/" + u; }
-  ];
-
-  function fetchText(url, ms){
-    var ctl = new AbortController();
-    var t = setTimeout(function(){ ctl.abort(); }, ms);
-    return fetch(url, {signal: ctl.signal}).then(function(r){
-      clearTimeout(t);
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      return r.text();
-    }, function(e){ clearTimeout(t); throw e; });
-  }
-
-  function loadFromItch(){
-    return new Promise(function(resolve){
-      var target = PROFILE + "?_=" + Date.now(); // cache-bust
-      var pending = PROXIES.length;
-      function fail(){ if (--pending === 0) resolve(null); }
-      PROXIES.forEach(function(p){
-        fetchText(p(target), 10000).then(function(html){
-          var games = parse(html);
-          if (games.length) resolve(games); else fail();
-        }).catch(fail);
-      });
-    });
-  }
-
-  // Optional manual list: games.json next to this page.
-  function loadExtra(){
-    return Promise.resolve([]); // games.json no longer used: everything lives in KNOWN
-    return fetchText(EXTRA_FILE + "?_=" + Date.now(), 5000).then(function(txt){
-      var arr = JSON.parse(txt);
-      if (!Array.isArray(arr)) return [];
-      return arr.filter(function(g){ return g && g.url; }).map(function(g){
-        var known = KNOWN_MAP[norm(g.url)] || {};
-        return {
-          url: g.url,
-          title: g.title || known.title || titleFromUrl(g.url),
-          desc: g.desc || known.desc || "",
-          badge: g.badge || known.badge || "Game"
-        };
-      });
-    }).catch(function(){ return []; });
-  }
-
-  // 1) Show something immediately: cache + built-in list.
-  var cached = [];
-  try {
-    var c = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
-    if (Array.isArray(c)) cached = c;
-  } catch(e){}
-  render(sortFeaturedFirst(merge(cached, KNOWN)));
-
-  // 2) Then refresh: itch.io is the source of truth, games.json adds anything missing.
-  Promise.all([loadFromItch(), loadExtra()]).then(function(res){
-    var itch = res[0], extra = res[1];
-    var list;
-    if (itch){
-      list = merge(itch, extra);                    // itch.io worked: deleted games disappear
-      try { localStorage.setItem(CACHE_KEY, JSON.stringify(itch)); } catch(e){}
-    } else {
-      list = merge(extra, cached, KNOWN);           // proxies failed: never lose games
+  // Deterrents: block right-click, drag, selection/copy, and save/view-source/print shortcuts.
+  function stop(e){ e.preventDefault(); }
+  ["contextmenu","dragstart","selectstart","copy","cut"].forEach(function(ev){
+    document.addEventListener(ev, stop);
+  });
+  document.addEventListener("keydown", function(e){
+    var k = (e.key || "").toLowerCase();
+    if (e.key === "F12" || ((e.ctrlKey || e.metaKey) && ["s","u","p","c","a"].indexOf(k) > -1) ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && ["i","j","c"].indexOf(k) > -1)){
+      e.preventDefault();
     }
-    render(sortFeaturedFirst(list));
   });
 })();
 </script>
